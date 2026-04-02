@@ -23,7 +23,7 @@ int main(){
 	
 	int litros,distancia,
 	opcao,lit,dist,
-	vali;validacao;
+	vali,validacao;
 	
 	float preco,med;
 	/* litros e distancia sao usados na main para media,
