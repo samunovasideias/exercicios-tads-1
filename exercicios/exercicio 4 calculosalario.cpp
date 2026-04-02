@@ -16,7 +16,7 @@ int main(){
 		sal_liquido=sal_bruto-(sal_bruto*8/100);
 		
 	}else 
-	if(sal_bruto>1500 && sal_bruto<3000){
+	if(sal_bruto>1500 && sal_bruto<=3000){
 		
 		sal_liquido=sal_bruto-(sal_bruto*9/100);
 		
