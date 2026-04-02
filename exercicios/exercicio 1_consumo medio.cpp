@@ -71,7 +71,7 @@ int main(){
 
 void limpar_buffer(void){
 		int c;//para limpar buffer
-		while((c=getchar())!='\n' && c!=EOF);//limpa buffer,o getchar joga o buffer dentro da variavel c até encontrar um enter
+		while((c=getchar())!='\n' && c!=EOF);//limpa buffer,o getchar joga o buffer dentro da variavel c atÃ© encontrar um enter
 }
 
 int calculo_media(void){
@@ -105,7 +105,7 @@ int calculo_media(void){
 	
 	media=distancia/litros; //calculo da media
 	
-	printf("seu consumo medio é de %d km\\l \n", media);
+	printf("seu consumo medio Ã© de %d km\\l \n", media);
 	
 	return media;
 }
