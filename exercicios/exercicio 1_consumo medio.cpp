@@ -7,7 +7,7 @@
 #define erro 3	//constantes para codigo de erro ou se esta tudo ok
 #define ok 4
 
-int validar(int vali,int num);
+int validar(int vali,float num);
 
 float calculo_media(int distancia, int litros);
 
@@ -105,9 +105,9 @@ int main(){
 				
 				}while(vali==erro);
 				
-			lit=dist/med;
+			lit=calculo_litros(med,dist);
 			
-			printf("serao gastos: %d litros\n ",calculo_litros(med,dist));
+			printf("serao gastos: %d litros\n ",lit);
 			printf("seu gasto total sera %.2f\n",gasto(lit,preco));
 			
 		break;
@@ -123,7 +123,7 @@ int main(){
 }
 
 
-int validar(int vali, int num){
+int validar(int vali, float num){
 		int c;//para limpar buffer
 			if(vali!=1 || num<=0){   
 				while((c=getchar())!='\n' && c!=EOF);//limpa buffer,o getchar joga o buffer dentro da variavel c até encontrar um enter
