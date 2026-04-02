@@ -140,7 +140,7 @@ float calculo_media(int distancia,int litros){
 		float media;
 	
 	
-	media=distancia/litros; //calculo da media
+	media=(float)distancia/litros; //calculo da media->transformei a divisão em float para nao retoenar apenas resultados inteiros
 	
 	return media;
 }
