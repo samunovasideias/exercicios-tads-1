@@ -9,7 +9,7 @@
 
 int validar(int vali,int num);
 
-int calculo_media(int distancia, int litros);
+float calculo_media(int distancia, int litros);
 
 float gasto(int litros, float preco);
 
