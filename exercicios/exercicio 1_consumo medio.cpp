@@ -69,17 +69,18 @@ int main(){
 	med=calculo_media(distancia,litros);
 	
 	
-	printf("seu consumo medio e de %.2f km\\l \n", med);
+	printf("seu consumo medio e de %.2f km\\l \n \n", med);
 	
-	printf("seu gasto total sera: R$ %.2f\n",gasto(litros,preco));
+	printf("seu gasto total sera: R$ %.2f\n \n",gasto(litros,preco));
+	printf("---------------------------------------------------------\n");
 	
 	
 	do{
 		printf("deseja saber:\n1. quantos km fara com n litros \n2. quantos litros precisara para percorrer uma distancia\n");
+		printf("---------------------------------------------------------\n");
 		scanf("%d",&opcao);
 		
-		if(opcao!=1 && opcao!=2){
-			
+		if(opcao!=1 && opcao!=2){	
 			printf("opcao invalida,tente novamente\n");
 		}
 	}while(opcao!=1 && opcao!=2);
