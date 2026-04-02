@@ -13,9 +13,9 @@ float calculo_media(int distancia, int litros);
 
 float gasto(int litros, float preco);
 
-int calculo_distancia(int media,int litros);
+int calculo_distancia(float media,int litros);
 
-int calculo_litros(int media, int distancia);
+int calculo_litros(float media, int distancia);
 
 int vali;//varievel global
 
@@ -132,7 +132,7 @@ int validar(int vali, float num){
 		return ok;
 }
 
-int calculo_media(int distancia,int litros){
+float calculo_media(int distancia,int litros){
 		int media;
 	
 	
@@ -148,11 +148,11 @@ float gasto(int litros, float preco){
 	return gastar;
 }
 
-int calculo_distancia(int media,int litros){
+int calculo_distancia(float media,int litros){
 	return media*litros;
 	
 }
 
-int calculo_litros(int media, int distancia){
+int calculo_litros(float media, int distancia){
 	return distancia/media;
 }
