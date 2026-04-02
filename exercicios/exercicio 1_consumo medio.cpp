@@ -17,11 +17,14 @@ int calculo_distancia(float media,int litros);
 
 int calculo_litros(float media, int distancia);
 
-int vali;//varievel global
+
 
 int main(){
 	
-	int litros,distancia,opcao,lit,dist,validacao;
+	int litros,distancia,
+	opcao,lit,dist,
+	vali;validacao;
+	
 	float preco,med;
 	/* litros e distancia sao usados na main para media,
 	lit e dist para calculos apos isso,
@@ -133,7 +136,7 @@ int validar(int vali, float num){
 }
 
 float calculo_media(int distancia,int litros){
-		int media;
+		float media;
 	
 	
 	media=distancia/litros; //calculo da media
