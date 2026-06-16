@@ -1,0 +1,738 @@
+//								   	  sprint 2
+//									Samuel e Joab
+/*
+                    ==========================================
+                    =                                        =
+                    =      SISTEMA DE BIBLIOTECA EM C        =
+                    =                                        =
+                    =       MATRIZES • FUNCOES • STRINGS     =
+                    =                                        =
+                    ==========================================
+*/
+
+// obs:talvez a identacao tenha problemas,como um ; sozinho na linha,usei o comando de auto intent do vscode
+//alt+shift+f para arrumar a identacao
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h> //usado para fazer validação de tipo de caracter
+
+// definição de struct
+typedef struct
+{
+    char titulo[101];
+    char autor[82];
+    char isbn[14];
+    int ano;
+    int quantidade;
+    int disponivel;
+} Livro;
+
+typedef struct
+{
+    char nome[81];
+    char matricula[13];
+    char email[101];
+} Usuario;
+
+typedef struct
+{
+    char isbn[14];
+    char matricula[13];
+    int devolvido;
+    char data[11];
+} Emprestimo;
+//--------------------------------------------funções----------------------------------------------------------------
+
+// livros
+void cadastrarLivro(Livro acervo[], int *total);
+void listarLivros(Livro acervo[], int total);
+void buscarTitulo(Livro acervo[], int total);
+void livrosDisponiveis(Livro acervo[], int total);
+int buscarPorISBN(Livro acervo[], int total, char *isbn);
+void realizarEmprestimo(Livro acervo[], int nl, Usuario usuarios[], int nu, Emprestimo emprestimos[], int *ne, int historico[][20]);
+void registrarDevolucao(Usuario usuarios[], int nu, Livro acervo[], int nl, Emprestimo emprestimos[], int *ne, int historico[][20]);
+void exibirHistorico(int historico[][20], int totalUsuarios, int totalLivros, Usuario usuarios[], Livro acervo[]);
+// usuarios
+void cadastrarUsuario(Usuario usuarios[], int *total);
+int buscarUsuario(Usuario usuarios[], int nu, char *matricula);
+void listarUsuarios(Usuario usuarios[], int total);
+int validarData(char data[]);
+void listarEmprestimosPorUsuario(Usuario usuarios[], int nu, Emprestimo emprestimos[], int ne, Livro acervo[]);
+
+//--------------------------------------------funções----------------------------------------------------------------
+
+int main(void)
+{
+
+    //-------------------------------------variaveis e objetos instanciados---------------------------------------------------
+
+    Livro acervo[20]; // array de livros
+    Usuario usuarios[30];
+    Emprestimo emprestimos[100];
+    // livros pré-cadastrados
+
+    acervo[0] = (Livro){"Algoritmos em C", "Nilo Ney", "9788575220011", 2020, 3, 1};
+    acervo[1] = (Livro){"Estruturas de Dados", "Mark Weiss", "9788575220022", 2019, 2, 1};
+    acervo[2] = (Livro){"Programacao em C", "Deitel", "9788575220033", 2018, 4, 1};
+    acervo[3] = (Livro){"Banco de Dados", "Elmasri", "9788575220044", 2021, 1, 1};
+    acervo[4] = (Livro){"Engenharia de Software", "Pressman", "9788575220055", 2022, 5, 1};
+
+    // usuarios pré-cadastrados
+
+    usuarios[0] = (Usuario){"Samuel", "20260001", "samuel@gmail.com"};
+    usuarios[1] = (Usuario){"Joab", "20260002", "joab@gmail.com"};
+    usuarios[2] = (Usuario){"Maria", "20260003", "maria@gmail.com"};
+    usuarios[3] = (Usuario){"Pedro", "20260004", "pedro@gmail.com"};
+    usuarios[4] = (Usuario){"Ana", "20260005", "ana@gmail.com"};
+
+    int totalLivros = 5;
+    int totalUsuarios = 5;
+    int totalEmprestimos=0;
+
+    // Matriz de histórico de acessos
+    int historico[30][20];
+
+    int iu = 0;
+
+    //----------------------------variaveis auxiliare-----------------------------------------------------------
+    char mat[13];
+    int numero6, c;
+    int proximoCad = 5;
+
+    int opcoes;
+
+    // inicializar todos os campos com 0
+    for (int i = 0; i < 30; i++)
+    {
+        for (int j = 0; j < 20; j++)
+        {
+            historico[i][j] = 0;
+        }
+    }
+
+    printf("bem vindo a biblioteca!\n");
+
+    do
+    {
+
+        system("cls");
+
+        printf("=================================================================================================\n");
+        printf("escolha a acao a ser executada:\n");
+
+        printf("============================================================\n");
+        printf("1.cadastrar livro      2.listar livros\n");
+        printf("3.buscar por titulo    4.listar disponiveis\n");
+        printf("5.cadastrar usuario    6.registrar devolucao\n");
+        printf("7.exibir historico     8.buscar por ISBN\n");
+        printf("9.realizar emprestimo  10.buscar usuario\n");
+        printf("11.listar usuarios     12.listar emprestimos\n");
+        printf("0.sair\n");
+        printf("============================================================\n");
+
+        int isANumber = scanf("%d", &opcoes);
+
+        while ((c = getchar()) != '\n' && c != EOF) //isso limpa o buffer apos um scanf  
+            ;
+
+        if (isANumber == 1)
+        {
+
+            switch (opcoes)
+            {
+
+            case 1:
+
+                if (proximoCad < 20)
+                {
+
+                    cadastrarLivro(acervo, &totalLivros);
+
+                    printf("cadastro finalizado\n");
+                }
+                else
+                {
+                    printf("limite de livros excedido\n");
+                }
+
+                break;
+
+            case 2:
+
+                listarLivros(acervo, totalLivros);
+
+                break;
+
+            case 3:
+
+                buscarTitulo(acervo, totalLivros);
+
+                break;
+
+            case 4:
+
+                livrosDisponiveis(acervo, totalLivros);
+
+                break;
+
+            case 5:
+
+                if (totalUsuarios < 30)
+                {
+
+                    cadastrarUsuario(usuarios, &totalUsuarios);
+
+                
+                }
+                else
+                {
+
+                    puts("limite de usuarios atingido");
+                }
+
+                break;
+
+            case 6:
+            int codDevolucao;
+            printf("digite o codigo do emprestimo para registrar a devolucao\n");
+            scanf("%d", &codDevolucao);
+                registrarDevolucao(usuarios, totalUsuarios, acervo, totalLivros, emprestimos,&codDevolucao, historico);
+                break;
+
+            case 7:
+
+                if (totalUsuarios < 1)
+                {
+
+                    printf("nenhum usuario cadastrado\n");
+                }
+                else
+                {
+
+                    exibirHistorico(historico, totalUsuarios, totalLivros, usuarios, acervo);
+                }
+
+                break;
+
+//            no case 8,preeferir fazer a logica de impressão no terminal aqui mesmo,assim eu consigo manter a responsabilidade unica e
+//              reutilizar a funcao de busca por isbn em outros lugares do codigo
+            case 8:
+                char isbn[14];
+                do
+                {
+
+                    puts("digite o ISBN do livro a ser buscado");
+                    scanf("%s", isbn);
+                    while ((c = getchar()) != '\n' && c != EOF)
+
+                        if (strlen(isbn) != 13)
+                        {
+                            puts("ISBN invalido,ele deve conter 13 digitos");
+                        }
+                        else
+                        {
+                            int find = buscarPorISBN(acervo, totalLivros, isbn);
+                            if (find == (-1))
+                            {
+                                printf("nao foi encontrado nenhum livro com o isbn:%s\n", isbn);
+                            }
+                            else
+                            {
+                                printf("livro:\ntitulo: %s\nautor: %s\nano de publicacao: %d\n %s\n ISBN:%s\n=========================================\n ",
+                                       acervo[find].titulo, acervo[find].autor, acervo[find].ano, acervo[find].disponivel == 1 ? "disponivel" : "indisponivel", acervo[find].isbn);
+                            }
+                        }
+                } while (strlen(isbn) != 13);
+
+                break;
+
+            case 9:
+                realizarEmprestimo(acervo, totalLivros, usuarios, totalUsuarios, emprestimos, &totalEmprestimos, historico);
+                break;
+
+            case 10:
+                char mat[13];
+                puts("digite a matricula do usuario a ser buscado");
+                scanf("%s", mat);
+                buscarUsuario(usuarios, totalUsuarios, mat);
+                break;
+            case 11:
+                listarUsuarios(usuarios, totalUsuarios);
+                break;
+
+            case 12:
+                listarEmprestimosPorUsuario(usuarios, totalUsuarios, emprestimos, totalEmprestimos, acervo);
+                break;
+
+            case 0:
+
+                break;
+
+            default:
+
+                printf("digite uma opcao valida\n");
+
+                break;
+            }
+        }
+        else
+        {
+
+            puts("opcao invalida,digite novamente");
+        }
+
+        system("pause");
+
+    } while (opcoes != 0);
+
+    return 0;
+}
+
+//--------------------------------------------funções----------------------------------------------------------------
+
+// usa ponteiros para modificar as variaveis da main
+// nessa,na func de cad de livro e de emprestimos,eu reutilizei metodos,como o buscar isbn e  buscar usuario,
+// tirando isso,usei a biblioteca ctype para validar o tipo de caracter do isbn e do email, alem de usar loops para validar o tamanho da matricula e do isbn
+// eu poderia dar um return seco,mas preferi deixar intuitivo com o do-while,assim o usuario nao precisa redigitar tudo
+//
+void cadastrarLivro(Livro acervo[], int *total)
+{
+    int isIsbnValid = 0; // uso para validar o isbn
+    int c;
+    char isbn[14]; // isbn digitado pelo usuario,uso para validar o isbn antes de copiar para o acervo
+
+    printf("digite o nome do livro:\n");
+
+    fgets(acervo[*total].titulo, 101, stdin);
+
+    acervo[*total].titulo[strcspn(acervo[*total].titulo, "\n")] = '\0';
+
+    printf("digite o autor do livro:\n");
+
+    fgets(acervo[*total].autor, 81, stdin);
+
+    acervo[*total].autor[strcspn(acervo[*total].autor, "\n")] = '\0';
+
+    printf("digite o ano do livro:\n");
+
+    scanf("%d", &acervo[*total].ano);
+
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+
+    printf("digite a quantidade  de livros:\n");
+
+    scanf("%d", &acervo[*total].quantidade);
+
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+    do
+    {
+
+        printf("digite o ISBN:\n");
+
+        fgets(isbn, 14, stdin);
+        isbn[strcspn(isbn, "\n")] = '\0';
+        if (strlen(isbn) != 13)
+        {
+            printf("o ISBN deve ter 13 digitos\ndigite novamente:\n");
+            isIsbnValid = 0;
+            continue;
+        }
+        for (int i = 0; i < 13; i++)
+        {
+            if (!isdigit(isbn[i]))
+            {
+                printf("o ISBN deve conter apenas numeros\ndigite novamente:\n");
+                isIsbnValid = 0;
+                continue;
+            }
+        }
+        if (buscarPorISBN(acervo, *total, isbn) != -1)
+        {
+            printf("ja existe um livro cadastrado com esse ISBN\ndigite novamente:\n");
+            isIsbnValid = 0;
+            continue;
+        }
+        isIsbnValid = 1;
+
+    } while (isIsbnValid != 1);
+    strcpy(acervo[*total].isbn, isbn);
+
+    if (acervo[*total].quantidade > 0)
+    {
+        acervo[*total].disponivel = 1;
+    }
+    else
+    {
+        acervo[*total].disponivel = 0;
+    }
+
+    (*total)++;
+}
+
+// um for que printa os livros
+void listarLivros(Livro acervo[], int total)
+{
+    for (int i = 0; i < total; i++)
+    {
+
+        printf("livro:\ntitulo: %s\nautor: %s\nano de publicacao: %d\n %s\n ISBN:%s\n=========================================\n ",
+               acervo[i].titulo, acervo[i].autor, acervo[i].ano, acervo[i].disponivel == 1 ? "disponivel" : "indisponivel", acervo[i].isbn);
+    }
+}
+
+// usa uma sequencia de loops para verificar se o termo digitado esta em algum livro
+//minha funcao favorita 
+void buscarTitulo(Livro acervo[], int total)
+{
+
+    char nomeBuscar[101];
+
+    printf("digite o nome:\n");
+
+    fgets(nomeBuscar, 101, stdin);
+
+    nomeBuscar[strcspn(nomeBuscar, "\n")] = '\0';
+
+    printf("................buscando...............\n");
+
+    int encontrados = 0;
+
+    for (int i = 0; i < total; i++)
+    {
+
+        int encontrou = 0;
+
+        for (int j = 0; acervo[i].titulo[j] != '\0'; j++)
+        {
+
+            int k = 0;
+
+            while (nomeBuscar[k] != '\0' && acervo[i].titulo[j] == nomeBuscar[k])
+            {
+
+                k++;
+            }
+
+            if (nomeBuscar[k] == '\0')
+            {
+
+                encontrou = 1;
+                break;
+            }
+        }
+
+        if (encontrou)
+        {
+
+            printf("livro:\ntitulo: %s\nautor: %s\nano de publicacao: %d\n %s\n ISBN:%s\n=========================================\n ",
+                   acervo[i].titulo, acervo[i].autor, acervo[i].ano, acervo[i].disponivel == 1 ? "disponivel" : "indisponivel", acervo[i].isbn);
+
+            encontrados++;
+        }
+    }
+
+    printf("foram encontrados %d titulos \n=========================================\n", encontrados);
+}
+
+// lista os livros disponiveis comparando a variavel "disponivel"
+void livrosDisponiveis(Livro acervo[], int total)
+{
+
+    printf("DISPONIVEIS:\n");
+
+    int contador = 0;
+
+    for (int i = 0; i < total; i++)
+    {
+
+        if (acervo[i].disponivel == 1)
+        {
+
+            printf("livro:\ntitulo: %s\nautor: %s\nano de publicacao: %d\n %s\n ISBN:%s\n=========================================\n ",
+                   acervo[i].titulo, acervo[i].autor, acervo[i].ano, acervo[i].disponivel == 1 ? "disponivel" : "indisponivel", acervo[i].isbn);
+
+            contador++;
+        }
+    }
+
+    printf("total de livros encontrados:%d\n", contador);
+}
+
+int buscarPorISBN(Livro acervo[], int total, char *isbn)
+{
+    for (int i = 0; i < total; i++)
+    {
+        if (!strcmp(isbn, acervo[i].isbn))
+        {
+            return i;
+        }
+    }
+    return -1; // retornado quando nao encontrar nennhum livro
+}
+
+// usuarios
+
+// nessa,na func de cad de livro e de emprestimos,eu reutilizei metodos,como o buscar isbn e  buscar usuario,
+// tirando isso,usei a biblioteca ctype para validar o tipo de caracter do isbn e do email, alem de usar loops para validar o tamanho da matricula e do isbn
+// eu poderia dar um return seco,mas preferi deixar intuitivo com o do-while,assim o usuario nao precisa redigitar tudo
+//
+void cadastrarUsuario(Usuario usuarios[], int *total)
+{
+    char matriculaValida[13]; // variavel para validar a matricula   
+    int isAEmail = 0; // variavel para auxiliar na validacao do email
+    puts("digite o nome a cadastrar");
+
+    fgets(usuarios[*total].nome, 81, stdin);
+
+    usuarios[*total].nome[strcspn(usuarios[*total].nome, "\n")] = '\0';
+    do
+    {
+
+        puts("digite a matricula a cadastrar");
+
+        fgets(matriculaValida, 13, stdin);
+
+        matriculaValida[strcspn(matriculaValida, "\n")] = '\0';
+        if (strlen(matriculaValida) < 8 || strlen(matriculaValida) > 12)
+        {
+            puts("a matricula deve conter entre 8 e 12 caracteres");
+        }
+        if(buscarUsuario(usuarios, *total, matriculaValida) != -1)
+        {
+            puts("ja existe um usuario cadastrado com essa matricula, digite outra");
+        }
+
+    } while (strlen(matriculaValida) < 8 || strlen(matriculaValida) > 12);
+    strcpy(usuarios[*total].matricula, matriculaValida);
+    do
+    {
+
+        puts("digite o email do usuario");
+
+        fgets(usuarios[*total].email, 101, stdin);
+
+        usuarios[*total].email[strcspn(usuarios[*total].email, "\n")] = '\0';
+
+        if (strchr(usuarios[*total].email, '@') != NULL && strchr(usuarios[*total].email, '.') != NULL)
+        {
+            isAEmail = 1;
+        }
+        else
+        {
+            puts("digite um email valido");
+        }
+    } while (isAEmail != 1);
+
+    puts("usuario cadastrado");
+
+    (*total)++;
+}
+// utiliza as funcoes de buscar livro e usuario para validar se existem, depois disso modifica os campos do emprestimo e do livro, alem de incrementar o historico de acessos
+void realizarEmprestimo(Livro acervo[], int nl, Usuario usuarios[], int nu, Emprestimo emprestimos[], int *ne, int historico[][20])
+{
+    int indiceLivro = -1, indiceUsuario = -1;
+    char mat[13], isbn[14];
+    int c;
+    printf("digite a matricula do usuario:\n");
+    scanf("%s", mat);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+
+    indiceUsuario = buscarUsuario(usuarios, nu, mat); // usei a func que ja tinha criado para verifificar se o usuario existe
+    if (indiceUsuario == -1)
+    {
+        printf("usuario nao encontrado\n");
+        return;
+    }
+    printf("digite o ISBN do livro:\n");
+    scanf("%s", isbn);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+    indiceLivro = buscarPorISBN(acervo, nl, isbn);
+    if (indiceLivro == -1)
+    {
+        printf("livro nao encontrado\n");
+        return;
+    }
+    if (acervo[indiceLivro].disponivel == 0)
+    {
+        printf("livro indisponivel\n");
+        return;
+    }
+    do
+    {
+        puts("digite a data");
+        scanf("%s", emprestimos[*ne].data);
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+        if (validarData(emprestimos[*ne].data) == 0)
+        {
+            puts("data invalida,ela deve estar no formato dd/mm/aaaa");
+        }
+    } while (validarData(emprestimos[*ne].data) == 0);
+    strcpy(emprestimos[*ne].isbn, isbn);
+    strcpy(emprestimos[*ne].matricula, mat);
+    historico[indiceUsuario][indiceLivro]++;
+    acervo[indiceLivro].quantidade--;
+    if (acervo[indiceLivro].quantidade == 0)
+    {
+        acervo[indiceLivro].disponivel = 0;
+    }
+    emprestimos[*ne].devolvido = 0;
+    printf("codigo do emprestimo: %d\n guarde bem,sera usado para devolucao\n", *ne);
+    (*ne)++;
+}
+
+// ao pesquisar,descobri que a biblioteca ctype tem metodos para validar o tipo de um caracter
+
+int validarData(char data[])
+{
+    if (strlen(data) != 10)
+        return 0;
+
+    if (data[2] != '/' || data[5] != '/')
+        return 0;
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 2 || i == 5)
+            continue;
+
+        if (!isdigit(data[i]))
+            return 0;
+    }
+
+    return 1;
+}
+
+// basicamente,reutiilizo as funções de buscar livro e usuario para validar se existem,depois disso modifico os campos do emprestimo
+void registrarDevolucao(Usuario usuarios[], int nu, Livro acervo[], int nl, Emprestimo emprestimos[], int *ne, int historico[][20])
+{
+    char mat[13], isbn[14];
+    int c;
+    Usuario usuarioProcurado;
+    printf("digite a matricula do usuario:\n");
+    scanf("%s", mat);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+    int indiceUsuario = buscarUsuario(usuarios, nu, mat); // usei a func que ja tinha criado para verifificar se o usuario existe
+    if (indiceUsuario == -1)
+    {
+        printf("usuario nao encontrado\n");
+        return;
+    }
+    printf("digite o ISBN do livro:\n");
+    scanf("%s", isbn);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+    int indiceLivro = buscarPorISBN(acervo, nl, isbn);
+    if (indiceLivro == -1)
+    {
+        printf("livro nao encontrado\n");
+        return;
+    }
+    emprestimos[*ne].devolvido = 1;
+    acervo[indiceLivro].quantidade++;
+    if (acervo[indiceLivro].quantidade > 0)
+    {
+        acervo[indiceLivro].disponivel = 1;
+    }
+    else
+    {
+        acervo[indiceLivro].disponivel = 0;
+    }
+}
+
+int buscarUsuario(Usuario usuarios[], int nu, char *matricula)
+{
+    for (int i = 0; i < nu; i++)
+    {
+        if (strcmp(matricula, usuarios[i].matricula) == 0)
+        {
+            return i;
+        }
+    }
+    return -1; // retornado quando nao encontrar nennhum usuario
+}
+
+// apenas pega o numero do usuario,o livro e incrementa quantas vezes o livro foi emprestado
+void registrarAcesso(int historico[][20], int iu, int il)
+{
+
+    historico[iu][il]++;
+}
+
+// usa loops para percorrer o historico e printar numero do usuario e livro
+// usa loops para percorrer o historico e printar numero do usuario e livro
+void exibirHistorico(int historico[][20], int totalUsuarios, int totalLivros, Usuario usuarios[], Livro acervo[])
+{
+
+    for (int i = 0; i < totalUsuarios; i++)
+    {
+
+        int encontrou = 0;
+
+        for (int j = 0; j < totalLivros; j++)
+        {
+
+            if (historico[i][j] > 0)
+            {
+
+                if (encontrou == 0)
+                {
+                    printf("usuario:%d - %s\n", i + 1, usuarios[i].nome);
+                    encontrou = 1;
+                }
+
+                printf("livro:%s | emprestimos:%d\n", acervo[j].titulo, historico[i][j]);
+            }
+        }
+
+        if (encontrou)
+        {
+            printf("=========================================\n");
+        }
+    }
+}
+
+void listarUsuarios(Usuario usuarios[], int total)
+{
+    for (int i = 0; i < total; i++)
+    {
+
+        printf("usuario:\nnome: %s\nmatricula: %s\nemail: %s\n=========================================\n ",
+               usuarios[i].nome, usuarios[i].matricula, usuarios[i].email);
+    }
+}
+
+void listarEmprestimosPorUsuario(Usuario usuarios[], int nu, Emprestimo emprestimos[], int ne, Livro acervo[])
+{
+    char mat[13];
+    int c;
+    printf("digite a matricula do usuario:\n");
+    scanf("%s", mat);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+    int indiceUsuario = buscarUsuario(usuarios, nu, mat); // usei a func que ja tinha criado para verifificar se o usuario existe
+    if (indiceUsuario == -1)
+    {
+        printf("usuario nao encontrado\n");
+        return;
+    }
+    printf("emprestimos do usuario %s:\n", usuarios[indiceUsuario].nome);
+    for (int i = 0; i < ne; i++)
+    {
+        if (strcmp(emprestimos[i].matricula, mat) == 0)
+        {
+            int indiceLivro = buscarPorISBN(acervo, nu, emprestimos[i].isbn);
+            if (indiceLivro != -1)
+            {
+                printf("livro: %s | data: %s | devolvido: %s\n", acervo[indiceLivro].titulo, emprestimos[i].data, emprestimos[i].devolvido == 1 ? "sim" : "nao");
+            }
+        }
+    }
+}
